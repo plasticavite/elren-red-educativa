@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELREN - Red Educativa Nova</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Cinzel', 'serif']
+                    },
+                    colors: {
+                        gold: {
+                            100: '#fef08a',
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .bg-glow-amber {
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(0, 0, 0, 0) 70%);
+        }
+        .bg-glow-orange {
+            background: radial-gradient(circle, rgba(234, 88, 12, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+        }
+
+        /* Glassmorphic Container */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 10px 30px -5px rgba(245, 158, 11, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .dark .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.45);
+        }
+
+        /* Glassmorphic Input */
+        .glass-input {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .dark .glass-input {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+
+        /* Metallic Gold Gradient Text */
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #facc15 35%, #f97316 70%, #ca8a04 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-gradient-text-light {
+            background: linear-gradient(135deg, #78350f 0%, #b45309 40%, #ea580c 75%, #ca8a04 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Circular Progress Timer Animation */
+        .timer-circle {
+            transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Canvas Sphere Glow */
+        .canvas-glow-container {
+            filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.45));
+            transition: filter 0.4s ease;
+        }
+        .canvas-glow-container:hover {
+            filter: drop-shadow(0 0 28px rgba(245, 158, 11, 0.7));
+        }
+
+        /* Modo Alarma Visual (Últimos 30 segundos) */
+        body.alarm-active {
+            animation: alarmBackground 1s infinite alternate ease-in-out;
+        }
+
+        @keyframes alarmBackground {
+            from {
+                background-color: rgba(220, 38, 38, 0.08);
+            }
+            to {
+                background-color: rgba(153, 27, 27, 0.25);
+            }
+        }
+
+        .glass-card.alarm-card {
+            border-color: rgba(239, 68, 68, 0.8) !important;
+            background: rgba(220, 38, 38, 0.2) !important;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.5) !important;
+            animation: pulseCard 0.8s infinite alternate;
+        }
+
+        @keyframes pulseCard {
+            from { transform: scale(1); }
+            to { transform: scale(1.02); }
+        }
+    </style>
+</head>
+
+<body id="mainBody" class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-500 relative overflow-x-hidden selection:bg-amber-500 selection:text-white">
+
+    <div class="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] bg-glow-amber pointer-events-none rounded-full blur-3xl z-0"></div>
+    <div class="fixed bottom-10 right-10 w-[450px] h-[450px] bg-glow-orange pointer-events-none rounded-full blur-3xl z-0"></div>
+
+    <!-- Enlace / Aviso Lanzador de Sesión Controlada -->
+    <div id="launcherNotice" class="w-full bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white text-xs py-2 px-4 text-center font-medium shadow-md z-30 flex items-center justify-center gap-3">
+        <span><i class="fa-solid fa-triangle-exclamation text-yellow-300 mr-1"></i> Para permitir que el temporizador cierre <strong>todas las ventanas automáticamente</strong> (incluyendo esta), inicia desde el lanzador:</span>
+        <button onclick="launchControlledWindow()" class="bg-white text-amber-800 hover:bg-amber-100 font-bold px-3 py-1 rounded-full text-xs transition shadow active:scale-95">
+            <i class="fa-solid fa-rocket mr-1"></i> Abrir Sesión Controlada
+        </button>
+    </div>
+
+    <!-- Header Section -->
+    <header class="w-full px-6 py-4 flex items-center justify-between z-20 max-w-7xl mx-auto">
+        <!-- ELREN Badge -->
+        <div class="flex items-center gap-2.5 glass-card px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400 border-amber-500/20">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            <span>Red Educativa Nova</span>
+        </div>
+
+        <!-- Timer & Controls -->
+        <div class="flex items-center gap-3">
+            <!-- Temporizador General de 5 Minutos -->
+            <div id="timerCard" class="flex items-center gap-3 glass-card px-4 py-2 rounded-2xl shadow-sm border-amber-500/20 transition-all duration-300">
+                <div class="relative w-8 h-8 flex items-center justify-center">
+                    <svg class="w-8 h-8">
+                        <circle class="text-slate-200 dark:text-slate-800" stroke-width="2.5" stroke="currentColor" fill="transparent" r="13" cx="16" cy="16"/>
+                        <circle id="timerProgress" class="timer-circle text-amber-500" stroke-width="2.5" stroke-dasharray="81.68" stroke-dashoffset="0" stroke-linecap="round" stroke="currentColor" fill="transparent" r="13" cx="16" cy="16"/>
+                    </svg>
+                    <i id="timerIcon" class="fa-solid fa-hourglass-start text-[10px] text-amber-500 absolute"></i>
+                </div>
+                
+                <div class="flex flex-col">
+                    <span id="timerDisplay" class="font-mono text-base font-bold tracking-wider text-slate-800 dark:text-slate-100">05:00</span>
+                    <span id="timerSubtext" class="text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">Tiempo Restante</span>
+                </div>
+            </div>
+
+            <!-- Botón Reloj Flotante Always-on-Top -->
+            <button id="pipBtn" onclick="togglePipClock()" title="Abrir Reloj Flotante" class="w-10 h-10 flex items-center justify-center rounded-2xl glass-card text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 transition shadow-sm active:scale-95">
+                <i class="fa-solid fa-window-restore text-sm"></i>
+            </button>
+
+            <!-- Theme Switcher Button -->
+            <button id="themeToggleBtn" title="Cambiar Tema" class="w-10 h-10 flex items-center justify-center rounded-2xl glass-card text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 transition shadow-sm active:scale-95">
+                <i id="themeIcon" class="fa-solid fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col items-center justify-center px-4 z-10 my-auto">
+        <div class="w-full max-w-2xl flex flex-col items-center text-center">
+            
+            <!-- ESFERA 3D EXPO '92 ORIGINAL -->
+            <div class="mb-4 group cursor-default">
+                <div class="relative w-44 h-44 sm:w-52 sm:h-52 mx-auto flex items-center justify-center canvas-glow-container">
+                    <div class="absolute inset-0 bg-amber-500/15 rounded-full blur-2xl pointer-events-none"></div>
+                    <canvas id="expoSphereCanvas" width="220" height="220" class="w-full h-full relative z-10"></canvas>
+                </div>
+
+                <h1 id="brandTitle" class="font-serif text-5xl sm:text-6xl font-black tracking-widest mt-2 dark:gold-gradient-text gold-gradient-text-light uppercase drop-shadow-sm">
+                    ELREN
+                </h1>
+
+                <p class="text-xs sm:text-sm font-semibold tracking-widest text-slate-600 dark:text-slate-300 mt-1.5 uppercase">
+                    Acceso Limitado a la Red Educativa Nova
+                </p>
+            </div>
+
+            <!-- Formulario de Búsqueda -->
+            <form id="searchForm" class="w-full max-w-xl mb-4 mt-2">
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-amber-500 transition duration-300">
+                        <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                    </div>
+                    
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Buscar en Google..." 
+                        autocomplete="off"
+                        autofocus
+                        class="w-full pl-14 pr-24 py-4 rounded-full glass-input shadow-xl focus:shadow-amber-500/10 focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-slate-800 dark:text-slate-100 text-lg transition-all duration-300"
+                    >
+
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center gap-2">
+                        <button type="button" id="clearSearchBtn" class="hidden text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 rounded-full transition">
+                            <i class="fa-solid fa-xmark text-lg"></i>
+                        </button>
+                        <button type="submit" aria-label="Buscar" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white p-3 rounded-full transition shadow-md hover:shadow-amber-500/30 active:scale-95">
+                            <i class="fa-solid fa-arrow-right text-sm px-0.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-center gap-4 mt-6">
+                    <button type="submit" class="px-6 py-3 rounded-2xl glass-card hover:bg-white/80 dark:hover:bg-slate-900/80 text-sm font-medium text-slate-700 dark:text-slate-200 transition shadow-sm hover:shadow border border-amber-500/20 active:scale-95">
+                        Buscar en Google
+                    </button>
+                    <button type="button" id="luckyBtn" class="px-6 py-3 rounded-2xl glass-card hover:bg-white/80 dark:hover:bg-slate-900/80 text-sm font-medium text-slate-700 dark:text-slate-200 transition shadow-sm hover:shadow border border-amber-500/20 active:scale-95">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-2"></i> Voy a tener suerte
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </main>
+
+    <footer class="w-full py-6 text-center text-xs text-slate-500 dark:text-slate-400 z-10">
+        <p>Sesión temporizada &bull; Todas las ventanas se cerrarán automáticamente al finalizar los 5 minutos</p>
+    </footer>
+
+    <!-- Overlay de Cierre Total -->
+    <div id="expiredOverlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-50 flex flex-col items-center justify-center p-6 opacity-0 pointer-events-none transition-opacity duration-500 text-center">
+        <div class="w-20 h-20 rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center mb-6 text-red-500 text-3xl animate-bounce">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        <h2 class="font-serif text-4xl font-bold text-red-500 mb-2">TIEMPO AGOTADO</h2>
+        <p class="text-slate-300 max-w-md mb-8 text-sm">
+            Se han cumplido los 5 minutos de navegación. Se han cerrado las ventanas de búsqueda y la sesión ha concluido.
+        </p>
+        <button onclick="launchControlledWindow()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3 rounded-2xl shadow-lg transition transform hover:scale-105 active:scale-95">
+            Iniciar Nueva Sesión
+        </button>
+    </div>
+
+    <script>
+        /**
+         * RENDERIZADOR 3D DE LA ESFERA EXPO '92 ORIGINAL (Mantiene diseño e inclinación exactos)
+         */
+        const canvas = document.getElementById('expoSphereCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const SPHERE_RADIUS = 76;
+        const LATITUDE_BANDS = 11;
+        const LONGITUDE_BANDS = 20;
+        const TILE_GAP_FACTOR = 0.82;
+        const TILT_ANGLE = 0.35; // Inclinación constante
+        
+        let rotationAngle = 0;
+
+        function renderExpoSphere() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const quads = [];
+            const latStep = Math.PI / LATITUDE_BANDS;
+            const lonStep = (Math.PI * 2) / LONGITUDE_BANDS;
+
+            for (let i = 1; i < LATITUDE_BANDS; i++) {
+                const lat1 = -Math.PI / 2 + (i - 1) * latStep;
+                const lat2 = -Math.PI / 2 + i * latStep;
+
+                for (let j = 0; j < LONGITUDE_BANDS; j++) {
+                    const lon1 = j * lonStep;
+                    const lon2 = (j + 1) * lonStep;
+
+                    const p1 = get3DPoint(lat1, lon1, rotationAngle);
+                    const p2 = get3DPoint(lat1, lon2, rotationAngle);
+                    const p3 = get3DPoint(lat2, lon2, rotationAngle);
+                    const p4 = get3DPoint(lat2, lon1, rotationAngle);
+
+                    const avgZ = (p1.z + p2.z + p3.z + p4.z) / 4;
+                    const avgY = (p1.y + p2.y + p3.y + p4.y) / 4;
+                    const avgX = (p1.x + p2.x + p3.x + p4.x) / 4;
+
+                    if (avgZ > -15) {
+                        quads.push({
+                            pts: [p1, p2, p3, p4],
+                            center: { x: avgX, y: avgY, z: avgZ },
+                            latIndex: i
+                        });
+                    }
+                }
+            }
+
+            quads.sort((a, b) => a.center.z - b.center.z);
+
+            quads.forEach(quad => {
+                drawPatchTile(ctx, quad.pts, quad.center, centerX, centerY);
+            });
+
+            rotationAngle += 0.009;
+            requestAnimationFrame(renderExpoSphere);
+        }
+
+        function get3DPoint(lat, lon, angle) {
+            const r = SPHERE_RADIUS;
+            const x0 = r * Math.cos(lat) * Math.sin(lon + angle);
+            const y0 = r * Math.sin(lat);
+            const z0 = r * Math.cos(lat) * Math.cos(lon + angle);
+
+            const yRot = y0 * Math.cos(TILT_ANGLE) - z0 * Math.sin(TILT_ANGLE);
+            const zRot = y0 * Math.sin(TILT_ANGLE) + z0 * Math.cos(TILT_ANGLE);
+
+            return { x: x0, y: yRot, z: zRot };
+        }
+
+        function drawPatchTile(ctx, pts, center, cx, cy) {
+            const cX = (pts[0].x + pts[1].x + pts[2].x + pts[3].x) / 4;
+            const cY = (pts[0].y + pts[1].y + pts[2].y + pts[3].y) / 4;
+
+            const shrinkPts = pts.map(p => ({
+                x: cx + cX + (p.x - cX) * TILE_GAP_FACTOR,
+                y: cy - (cY + (p.y - cY) * TILE_GAP_FACTOR)
+            }));
+
+            const depthFactor = Math.max(0, Math.min(1, (center.z + SPHERE_RADIUS) / (SPHERE_RADIUS * 2)));
+            const verticalFactor = Math.max(0, Math.min(1, (center.y + SPHERE_RADIUS) / (SPHERE_RADIUS * 2)));
+
+            let r = Math.floor(255);
+            let g = Math.floor(180 * depthFactor + 40 * verticalFactor);
+            let b = Math.floor(20 * (1 - depthFactor));
+            const alpha = Math.min(1, 0.45 + depthFactor * 0.55);
+
+            ctx.beginPath();
+            ctx.moveTo(shrinkPts[0].x, shrinkPts[0].y);
+            ctx.lineTo(shrinkPts[1].x, shrinkPts[1].y);
+            ctx.lineTo(shrinkPts[2].x, shrinkPts[2].y);
+            ctx.lineTo(shrinkPts[3].x, shrinkPts[3].y);
+            ctx.closePath();
+
+            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            ctx.fill();
+
+            ctx.strokeStyle = `rgba(254, 240, 138, ${Math.min(1, alpha + 0.2)})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+        }
+
+        renderExpoSphere();
+    </script>
+
+    <script>
+        // --- TEMPORIZADOR Y CONTROL DE VENTANAS ---
+        const TIMER_DURATION = 300; // 5 minutos exactos
+        let timerSecondsRemaining = TIMER_DURATION;
+        let timerInterval = null;
+        let isAlarmActive = false;
+
+        let searchWindow = null; // Referencia a la ventana de Google
+        let pipWindow = null;    // Referencia al reloj Picture-in-Picture
+
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerProgress = document.getElementById('timerProgress');
+        const timerCard = document.getElementById('timerCard');
+        const timerIcon = document.getElementById('timerIcon');
+        const mainBody = document.getElementById('mainBody');
+        const expiredOverlay = document.getElementById('expiredOverlay');
+
+        // Lanzador para abrir ELREN en ventana secundaria (con permiso de autocierre completo)
+        function launchControlledWindow() {
+            window.open(window.location.href, 'ELREN_Controlled_Session', 'width=1280,height=850,menubar=no,toolbar=no,location=no');
+        }
+
+        // Ocultar aviso de lanzador si esta ventana ya fue abierta por un script
+        if (window.opener) {
+            document.getElementById('launcherNotice').style.display = 'none';
+        }
+
+        function startTimer() {
+            if (timerInterval) return;
+
+            timerInterval = setInterval(() => {
+                timerSecondsRemaining--;
+                updateTimerUI();
+
+                if (timerSecondsRemaining <= 0) {
+                    closeAllAndFinish();
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            const minutes = Math.floor(timerSecondsRemaining / 60);
+            const seconds = timerSecondsRemaining % 60;
+            const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            timerDisplay.textContent = timeStr;
+
+            // Actualizar círculo de progreso
+            const progressFraction = Math.max(0, timerSecondsRemaining / TIMER_DURATION);
+            const circumference = 2 * Math.PI * 13;
+            const offset = circumference * (1 - progressFraction);
+            timerProgress.style.strokeDashoffset = offset;
+
+            // MODO ALARMA (< 30 SEGUNDOS)
+            if (timerSecondsRemaining <= 30 && !isAlarmActive) {
+                isAlarmActive = true;
+                activateAlarmMode();
+            }
+
+            // Actualizar Reloj Flotante PIP si está activo
+            if (pipWindow && !pipWindow.closed) {
+                const pipText = pipWindow.document.getElementById('pipTimerText');
+                if (pipText) pipText.textContent = timeStr;
+            }
+        }
+
+        function activateAlarmMode() {
+            mainBody.classList.add('alarm-active');
+            timerCard.classList.add('alarm-card');
+            timerProgress.style.stroke = '#ef4444';
+            timerIcon.className = 'fa-solid fa-bell text-[10px] text-red-500 animate-bounce';
+            timerDisplay.classList.add('text-red-500');
+
+            if (pipWindow && !pipWindow.closed) {
+                const pipBody = pipWindow.document.body;
+                if (pipBody) pipBody.classList.add('alarm-pip');
+            }
+        }
+
+        function closeAllAndFinish() {
+            clearInterval(timerInterval);
+
+            // 1. Cerrar ventana de búsqueda de Google
+            if (searchWindow && !searchWindow.closed) {
+                searchWindow.close();
+            }
+
+            // 2. Cerrar reloj flotante Picture-in-Picture
+            if (pipWindow && !pipWindow.closed) {
+                pipWindow.close();
+            }
+
+            // 3. Mostrar pantalla de bloqueo y cerrar ventana principal
+            expiredOverlay.classList.remove('opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                window.close(); // Se cerrará si fue abierta mediante el lanzador
+            }, 800);
+        }
+
+        // Reloj Flotante (Picture-in-Picture)
+        async function togglePipClock() {
+            if (pipWindow && !pipWindow.closed) {
+                pipWindow.close();
+                return;
+            }
+
+            if ('documentPictureInPicture' in window) {
+                try {
+                    pipWindow = await window.documentPictureInPicture.requestWindow({ width: 220, height: 100 });
+                    pipWindow.document.body.innerHTML = `
+                        <style>
+                            body {
+                                margin: 0;
+                                background: #0f172a;
+                                color: #facc15;
+                                font-family: system-ui, sans-serif;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                height: 100vh;
+                                transition: all 0.3s;
+                            }
+                            .title { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 600; }
+                            .time { font-size: 2.2rem; font-bold: 700; font-family: monospace; font-weight: 800; }
+                            body.alarm-pip { background: #7f1d1d !important; color: #ffffff !important; animation: blink 0.6s infinite alternate; }
+                            @keyframes blink { from { opacity: 0.8; } to { opacity: 1; } }
+                        </style>
+                        <div class="title">Tiempo ELREN</div>
+                        <div class="time" id="pipTimerText">${timerDisplay.textContent}</div>
+                    `;
+                } catch (e) {
+                    console.log("No se pudo activar PiP document:", e);
+                }
+            } else {
+                pipWindow = window.open("", "ELREN_PIP", "width=220,height=110,top=50,left=50,menubar=no,toolbar=no");
+                if (pipWindow) {
+                    pipWindow.document.write(`
+                        <html><head><title>Tiempo ELREN</title></head>
+                        <body style="background:#0f172a; color:#facc15; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; margin:0; font-family:sans-serif;">
+                            <div style="font-size:10px; color:#94a3b8; text-transform:uppercase;">Tiempo Restante</div>
+                            <div id="pipTimerText" style="font-size:2rem; font-weight:bold; font-family:monospace;">${timerDisplay.textContent}</div>
+                        </body></html>
+                    `);
+                }
+            }
+        }
+
+        // Manejo de Búsquedas
+        const searchForm = document.getElementById('searchForm');
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const luckyBtn = document.getElementById('luckyBtn');
+
+        function executeSearch(query, isLucky = false) {
+            if (!query.trim()) return;
+
+            const url = isLucky 
+                ? `https://www.google.com/search?q=${encodeURIComponent(query)}&btnI=1`
+                : `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+
+            // Abrir búsqueda en ventana popup controlada
+            searchWindow = window.open(url, 'ELREN_Search_Tab', 'width=1200,height=800,menubar=yes,toolbar=yes');
+        }
+
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            executeSearch(searchInput.value);
+        });
+
+        luckyBtn.addEventListener('click', () => {
+            executeSearch(searchInput.value, true);
+        });
+
+        searchInput.addEventListener('input', () => {
+            clearSearchBtn.classList.toggle('hidden', searchInput.value.length === 0);
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            clearSearchBtn.classList.add('hidden');
+            searchInput.focus();
+        });
+
+        // Cambio de Tema Claro / Oscuro
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-moon text-slate-600';
+            } else {
+                document.documentElement.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun text-amber-400';
+            }
+        });
+
+        // Iniciar Temporizador al Cargar
+        window.onload = function() {
+            startTimer();
+        };
+    </script>
+</body>
+</html>
